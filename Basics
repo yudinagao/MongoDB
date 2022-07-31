@@ -1,1 +1,82 @@
+# Skills Network Cloud IDE (based on Theia and Docker) provides an environment for hands on labs for course and project related labs. 
+# Theia is an open source IDE (Integrated Development Environment), that can be run on desktop or on the cloud. to complete this lab, 
+# we will be using the Cloud IDE based on Theia and MongoDB running in a Docker container.
 
+#start the mongoDB server:
+start_mongo
+
+#connect to the server using the password
+mongo -u root -p <password> --authenticationDatabase admin local
+
+#Using the training Database:
+use training
+
+############################################################################################################################################
+################################################################CRUD########################################################################
+
+#create a collection // MongoDB documents of similar type are grouped into a collection
+db.createCollection("languages")
+
+#populating tha DB as follows:
+db.languages.insert({"name":"java","type":"object oriented"})
+db.languages.insert({"name":"python","type":"general purpose"})
+db.languages.insert({"name":"scala","type":"functional"})
+db.languages.insert({"name":"c","type":"procedural"})
+db.languages.insert({"name":"c++","type":"object oriented"})
+
+# Verify if yor DB got all the documents inserted
+db.languages.count()
+
+# List the first document in the collection:
+db.languages.findOne()
+
+#List all documents in the collection.
+db.languages.find()
+
+#Query for "python" language or "object oriented
+db.languages.find({"name":"python"})
+db.languages.find({"type":"object oriented"})
+
+#Filters
+#This command lists all the documents with only name field in the output.
+db.languages.find({},{"name":1})
+#This command lists all the documents without the name field in the output.
+db.languages.find({},{"name":0})
+#This command lists all the "object oriented" languages with only "name" field in the output.
+db.languages.find({"type":"object oriented"},{"name":1})
+
+#Updates
+#The 'updateMany' command is used to update documents in a mongodb collection, and it has the following generic syntax.
+# db.collection.updateMany({what documents to find},{$set:{what fields to set}})
+db.languages.updateMany({},{$set:{"description":"programming language"}})
+db.languages.updateMany({"name":"python"},{$set:{"creator":"Guido van Rossum"}})
+db.languages.updateMany({"type":"object oriented"},{$set:{"compiled":true}})
+
+#Delete Documents
+#Delete the scala language document.
+db.languages.remove({"name":"scala"})
+#Delete the object oriented languages.
+db.languages.remove({"type":"object oriented"})
+#Delete all the documents in a collection.
+db.languages.remove({})
+
+############################################################################################################################################
+################################################################INDEXES#####################################################################
+#create a collection // MongoDB documents of similar type are grouped into a collection
+db.createCollection("bigdata")
+
+#for this case, populating tha DB as a account_no (incremental number) and balance (random number)
+for (i=1;i<=200000;i++){print(i);db.bigdata.insert({"account_no":i,"balance":Math.round(Math.random()*1000000)})}
+
+# Verify if yor DB got all the documents inserted
+db.bigdata.count()
+
+# Let us run a query and find out how much time it takes to complete. Let us query for the details of account number 58982.
+# We will make use of the explain function to find the time taken to run the query in milliseconds.
+db.bigdata.find({"account_no":58982}).explain("executionStats").executionStats.executionTimeMillis
+
+# Create a Index
+db.bigdata.createIndex({"account_no":1})
+db.bigdata.getIndexes()
+db.bigdata.find({"account_no": 69271}).explain("executionStats").executionStats.executionTimeMillis
+db.bigdata.dropIndex({"account_no":1})
